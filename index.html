@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>BLU testing</title>
+    <meta name="description" content="">
+  </head>
+<body>
+  <button id="ble-find">Devices</button>
+</body>
+<script type="text/javascript">
+  var findBtn = document.getElementById("ble-find");
+  findBtn.addEventListener('click', function(event){
+    navigator.bluetooth.requestDevices();
+  });
+</script>
+</html>
