@@ -1,4 +1,4 @@
 name: blu-tweak
 recipe: lemp
 config:
-  webroot: webroot
+  webroot: docroot
