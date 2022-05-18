@@ -12,7 +12,7 @@
 <script type="text/javascript">
   var findBtn = document.getElementById("ble-find");
   findBtn.addEventListener('click', function(event){
-    navigator.bluetooth.requestDevice();
+    navigator.bluetooth.requestDevice({'acceptAllDevices':true})
   });
 </script>
 </html>
