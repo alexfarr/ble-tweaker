@@ -1,0 +1,17 @@
+#test .page {
+    width: 500px;
+    height: 400px;
+    margin: 100px;
+    background: aqua;
+    position: relative;
+}
+
+#test .element{
+    border: 2px solid rosybrown;
+    background: azure;
+    position: absolute;
+    left:100px;
+    top: 75px;
+    width: 100px;
+    height: 100px;
+}
