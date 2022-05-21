@@ -1,9 +1,11 @@
 let findBtn = document.getElementById("ble-find");
 let page = document.getElementsByClassName('page')[0];
 let element = document.getElementsByClassName("element");
-
+let serviceUUI = '673b3bf6-ce60-4ee7-bbc1-065fbfb1fd65';
+let charUUID = '8a9a1143-ee50-45ac-b607-3c8354fc7fcf';
+let charEvent = new CustomEvent('charEvent');
 findBtn.addEventListener('click', e => {
-    navigator.bluetooth.requestDevice({'filters': [{'services' : ['673b3bf6-ce60-4ee7-bbc1-065fbfb1fd65']}]})
+    navigator.bluetooth.requestDevice({'filters': [{'services' : [serviceUUI]}]})
         .then(device => {
             // Human-readable name of the device.
             console.log(device.name);
@@ -12,12 +14,21 @@ findBtn.addEventListener('click', e => {
             return device.gatt.connect();
         })
         .then(service => {
-            return service.getCharacteristic('8a9a1143-ee50-45ac-b607-3c8354fc7fcf');
+            return service.getPrimaryService(serviceUUI);
+        })
+        .then(service => {
+            return service.getCharacteristic(charUUID);
         })
         .then(characteristic => {
-            // Reading Battery Level…
+            console.log(characteristic.readValue());
+            charEvent.detail = characteristic.readValue();
+            document.dispatchEvent(charEvent);
             return characteristic.readValue();
         })
+});
+
+document.addEventListener('charEvent', e => {
+ console.log('Event: ' . e.detail);
 });
 
 let mouseMovePrevVal = 0;
