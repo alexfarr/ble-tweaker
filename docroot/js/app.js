@@ -3,7 +3,7 @@ let page = document.getElementsByClassName('page')[0];
 let element = document.getElementsByClassName("element");
 
 findBtn.addEventListener('click', e => {
-    navigator.bluetooth.requestDevice({'acceptAllDevices': true})
+    navigator.bluetooth.requestDevice({'filters': [{'services' : ['673b3bf6-ce60-4ee7-bbc1-065fbfb1fd65']}]})
         .then(device => {
             // Human-readable name of the device.
             console.log(device.name);
@@ -12,8 +12,7 @@ findBtn.addEventListener('click', e => {
             return device.gatt.connect();
         })
         .then(service => {
-            // Getting Battery Level Characteristic…
-            return service.getCharacteristic('serial');
+            return service.getCharacteristic('8a9a1143-ee50-45ac-b607-3c8354fc7fcf');
         })
         .then(characteristic => {
             // Reading Battery Level…
