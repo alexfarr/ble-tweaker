@@ -4,6 +4,8 @@ let element = document.getElementsByClassName("element");
 let serviceUUI = '673b3bf6-ce60-4ee7-bbc1-065fbfb1fd65';
 let charUUID = '8a9a1143-ee50-45ac-b607-3c8354fc7fcf';
 let charEvent = new CustomEvent('charEvent');
+let bleDevice;
+let bleCharacteristic1;
 findBtn.addEventListener('click', e => {
     navigator.bluetooth.requestDevice({'filters': [{'services' : [serviceUUI]}]})
         .then(device => {
@@ -11,7 +13,10 @@ findBtn.addEventListener('click', e => {
             console.log(device.name);
 
             // Attempts to connect to remote GATT Server.
-            return device.gatt.connect();
+            bleDevice = device.gatt.connect();
+            bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
+
+            return bleDevice;
         })
         .then(service => {
             return service.getPrimaryService(serviceUUI);
@@ -20,6 +25,8 @@ findBtn.addEventListener('click', e => {
             return service.getCharacteristic(charUUID);
         })
         .then(characteristic => {
+            bleCharacteristic1 = characteristic;
+            bleCharacteristic1.addEventListener('characteristicvaluechanged', handleChar1Changed);
             console.log(characteristic.readValue());
             charEvent.detail = characteristic.readValue();
             document.dispatchEvent(charEvent);
@@ -66,3 +73,16 @@ let thing = {
         document.getElementsByClassName(thingObject.selector)[0].style.height = thingObject.value + "px";
     },
 };
+
+
+function onDisconnected() {
+    log('> Bluetooth Device disconnected');
+    connectDeviceAndCacheCharacteristics()
+    .catch(error => {
+      log('Argh! ' + error);
+    });
+  }
+
+  function handleChar1Changed(event){
+
+  }
