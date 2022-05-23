@@ -12,3 +12,5 @@ https://googlechrome.github.io/samples/web-bluetooth/notifications.html?service=
 https://github.com/nkolban/ESP32_BLE_Arduino
 
 https://www.youtube.com/watch?v=u4HY3OIk2-c&ab_channel=BinaBhatt
+
+https://googlechrome.github.io/samples/web-bluetooth/notifications.html

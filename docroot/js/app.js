@@ -1,44 +1,17 @@
-let findBtn = document.getElementById("ble-find");
+let bleFindBtn = document.getElementById("bleDevice-find");
+let bleResettBtn = document.getElementById("bleDevice-find");
+
+let bleDeviceInfo = document.getElementById("bleDevice-info");
 let page = document.getElementsByClassName('page')[0];
 let element = document.getElementsByClassName("element");
+
 let serviceUUI = '673b3bf6-ce60-4ee7-bbc1-065fbfb1fd65';
 let charUUID = '8a9a1143-ee50-45ac-b607-3c8354fc7fcf';
-let charEvent = new CustomEvent('charEvent');
-let bleDevice;
-let bleCharacteristic1;
-findBtn.addEventListener('click', e => {
-    navigator.bluetooth.requestDevice({'filters': [{'services' : [serviceUUI]}]})
-        .then(device => {
-            // Human-readable name of the device.
-            console.log(device.name);
 
-            // Attempts to connect to remote GATT Server.
-            bleDevice = device.gatt.connect();
-            bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
-
-            return bleDevice;
-        })
-        .then(service => {
-            return service.getPrimaryService(serviceUUI);
-        })
-        .then(service => {
-            return service.getCharacteristic(charUUID);
-        })
-        .then(characteristic => {
-            bleCharacteristic1 = characteristic;
-            bleCharacteristic1.addEventListener('characteristicvaluechanged', handleChar1Changed);
-            console.log(characteristic.readValue());
-            charEvent.detail = characteristic.readValue();
-            document.dispatchEvent(charEvent);
-            return characteristic.readValue();
-        })
-});
-
-document.addEventListener('charEvent', e => {
- console.log('Event: ' . e.detail);
-});
-
+var bluetoothDevice;
+var characteristicOne;
 let mouseMovePrevVal = 0;
+
 page.addEventListener('mousemove', e => {
     let value = 0;
     if (e.offsetY > mouseMovePrevVal) {
@@ -64,7 +37,6 @@ let bluIncrementAction = (direction, thingObject) => {
     thingObject.callback(thingObject);
 };
 
-
 let thing = {
     value: 0,
     step: 10,
@@ -75,14 +47,108 @@ let thing = {
 };
 
 
+bleFindBtn.addEventListener("click", onBleBtnClick);
+bleResettBtn.addEventListener("click", onResetButtonClick);
+
+function onBleBtnClick() {
+  return (bluetoothDevice ? Promise.resolve() : requestDevice())
+  .then(connectDeviceAndCacheCharacteristics)
+  .then(_ => {
+    console.log('ReadingChaarateristic 1');
+    return characteristicOne.readValue();
+  })
+  .catch(error => {
+    console.log('Argh! ' + error);
+  });
+}
+
+function requestDevice() {
+    console.log('Requesting bleTweaker Bluetooth Device...');
+  return navigator.bluetooth.requestDevice({
+      filters: [{'services' : [serviceUUI]}]
+  })
+  .then(device => {
+    bluetoothDevice = device;
+    bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+  });
+}
+
+function connectDeviceAndCacheCharacteristics() {
+  if (bluetoothDevice.gatt.connected && characteristicOne) {
+    return Promise.resolve();
+  }
+
+  console.log('Connecting to GATT Server...');
+  return bluetoothDevice.gatt.connect()
+  .then(server => {
+    console.log('Getting Service...');
+    return server.getPrimaryService(serviceUUI);
+  })
+  .then(service => {
+    console.log('Getting Characteristic...');
+    return service.getCharacteristics();
+  })
+  .then(characteristics => {
+    characteristics.forEach(characteristic => {
+        characteristicOne = characteristic;
+        characteristicOne.addEventListener('characteristicvaluechanged',
+        handleCharateristicOneChanged);
+      });
+   
+    document.querySelector('#bleDevice-notify').disabled = false;
+    document.querySelector('#bleDevice-stopNotify').disabled = true;
+  });
+}
+
+/* This function will be called when `readValue` resolves and
+ * characteristic value changes since `characteristicvaluechanged` event
+ * listener has been added. */
+function handleCharateristicOneChanged(event) {
+  let value = String.fromCharCode(event.target.value.buffer[i]);
+  console.log('Char value is ' + value);
+}
+
+function onStartNotificationsButtonClick() {
+    console.log('Starting Notifications...');
+  characteristicOne.startNotifications()
+  .then(_ => {
+    console.log('> Notifications started');
+    document.querySelector('#startNotifications').disabled = true;
+    document.querySelector('#stopNotifications').disabled = false;
+  })
+  .catch(error => {
+    console.log('Argh! ' + error);
+  });
+}
+
+function onStopNotificationsButtonClick() {
+    console.log('Stopping Notifications...');
+  characteristicOne.stopNotifications()
+  .then(_ => {
+    console.log('> Notifications stopped');
+    document.querySelector('#startNotifications').disabled = false;
+    document.querySelector('#stopNotifications').disabled = true;
+  })
+  .catch(error => {
+    console.log('Argh! ' + error);
+  });
+}
+
+function onResetButtonClick() {
+  if (characteristicOne) {
+    characteristicOne.removeEventListener('characteristicvaluechanged',
+        handleBatteryLevelChanged);
+        characteristicOne = null;
+  }
+  // Note that it doesn't disconnect device.
+  bluetoothDevice = null;
+  console.log('> Bluetooth Device reset');
+}
+
 function onDisconnected() {
-    log('> Bluetooth Device disconnected');
-    connectDeviceAndCacheCharacteristics()
-    .catch(error => {
-      log('Argh! ' + error);
-    });
-  }
-
-  function handleChar1Changed(event){
-
-  }
+    console.log('> Bluetooth Device disconnected');
+  connectDeviceAndCacheCharacteristics()
+  .catch(error => {
+    console.log('Argh! ' + error);
+  });
+}
