@@ -49,6 +49,7 @@ void setup() {
   pAdvertising->setMaxPreferred(0x12);
 
   BLEDevice::startAdvertising();
+  
   Serial.println("Characteristic defined! Now you can read it in your phone!");
 }
 

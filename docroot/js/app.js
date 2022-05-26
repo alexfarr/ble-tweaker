@@ -11,7 +11,6 @@ let charUUID = '8a9a1143-ee50-45ac-b607-3c8354fc7fcf';
 var bluetoothDevice;
 var characteristicOne;
 let mouseMovePrevVal = 0;
-
 page.addEventListener('mousemove', e => {
     let value = 0;
     if (e.offsetY > mouseMovePrevVal) {
@@ -94,7 +93,7 @@ function connectDeviceAndCacheCharacteristics() {
         characteristicOne.addEventListener('characteristicvaluechanged',
         handleCharateristicOneChanged);
       });
-   
+
     document.querySelector('#bleDevice-notify').disabled = false;
     document.querySelector('#bleDevice-stopNotify').disabled = true;
   });
