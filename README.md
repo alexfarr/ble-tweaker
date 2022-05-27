@@ -1,4 +1,11 @@
 # blu-tweaker
+Idea: a Bluetooth low energy button box that is able to adjust css properties of a web page.
+
+## Example
+https://alexfarr.github.io/ble-tweaker/software/
+
+## Case
+![basic case](hardware/case.jpg?raw=true "Basic case design")
 
 # resources
 https://www.youtube.com/watch?v=oCMOYS71NIU
