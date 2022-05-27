@@ -5,7 +5,7 @@ Idea: a Bluetooth low energy button box that is able to adjust css properties of
 https://alexfarr.github.io/ble-tweaker/software/
 
 ## Case
-![basic case](hardware/case.jpg?raw=true "Basic case design")
+![basic case](hardware/case.png?raw=true "Basic case design")
 
 # resources
 https://www.youtube.com/watch?v=oCMOYS71NIU
