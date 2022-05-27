@@ -5,8 +5,10 @@ let bleDeviceInfo = document.getElementById("bleDevice-info");
 let page = document.getElementsByClassName('page')[0];
 let element = document.getElementsByClassName("element");
 
-let serviceUUI = '673b3bf6-ce60-4ee7-bbc1-065fbfb1fd65';
-let charUUID = '8a9a1143-ee50-45ac-b607-3c8354fc7fcf';
+let serviceUUID = '673b3bf6-ce60-4ee7-bbc1-065fbfb1fd65';
+let knobCharUUID = '8a9a1143-ee50-45ac-b607-3c8354fc7fcf';
+let sliderCharUUID = '9a9a1143-ee50-45ac-b607-3c8354fc7fcf';
+let encoderCharUUID = '7a9a1143-ee50-45ac-b607-3c8354fc7fcf';
 
 var bluetoothDevice;
 var characteristicOne;
@@ -64,7 +66,7 @@ function onBleBtnClick() {
 function requestDevice() {
     console.log('Requesting bleTweaker Bluetooth Device...');
   return navigator.bluetooth.requestDevice({
-      filters: [{'services' : [serviceUUI]}]
+      filters: [{'services' : [serviceUUID]}]
   })
   .then(device => {
     bluetoothDevice = device;
@@ -81,7 +83,7 @@ function connectDeviceAndCacheCharacteristics() {
   return bluetoothDevice.gatt.connect()
   .then(server => {
     console.log('Getting Service...');
-    return server.getPrimaryService(serviceUUI);
+    return server.getPrimaryService(serviceUUID);
   })
   .then(service => {
     console.log('Getting Characteristic...');
@@ -89,6 +91,7 @@ function connectDeviceAndCacheCharacteristics() {
   })
   .then(characteristics => {
     characteristics.forEach(characteristic => {
+        //@TODO need to map to known charateristics
         characteristicOne = characteristic;
         characteristicOne.addEventListener('characteristicvaluechanged',
         handleCharateristicOneChanged);
