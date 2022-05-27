@@ -10,12 +10,13 @@
 #define SEESAW_ADDR          0x36
 
 
-const uint8_t code1Pin = D2;
-const uint8_t code2Pin = D3;
+const uint8_t code1Pin = D3;
+const uint8_t code2Pin = D5;
 const uint8_t code4Pin = D4;
-const uint8_t code8Pin = D5;
+const uint8_t code8Pin = D2;
 
 const uint8_t sliderPin = A0;
+const uint8_t sliderEnablePin = D9;
 
 
 // See the following for generating UUIDs:
@@ -52,6 +53,8 @@ void setup() {
   pinMode(code1Pin, INPUT);
 
   pinMode(sliderPin, INPUT_PULLDOWN);
+  pinMode(sliderEnablePin, OUTPUT);
+  digitalWrite(sliderEnablePin, 0);
 
   BLEDevice::init("BLE Tweaker");
   BLEServer *pServer = BLEDevice::createServer();
@@ -112,6 +115,8 @@ void setup() {
 
 void loop() {
   readKnob();
+  readSlider();
+  readEncoder();
   // put your main code here, to run repeatedly:
   delay(2000);
 }
@@ -171,12 +176,23 @@ void readKnob() {
 }
 
 void readSlider() {
-    int value = analogRead(sliderPin);
-    if(value != slider_value) {
-      knobCharacteristic.setValue();
-      knobCharacteristic.notify(true);
-      slider_value = value;
-    }
+  // Enable the slider.
+  digitalWrite(sliderEnablePin, 1);
+  
+  // Read slider value;
+  int value = analogRead(sliderPin);
+
+  if(value != slider_value) {
+    // Set and notify.
+    knobCharacteristic.setValue();
+    knobCharacteristic.notify(true);
+    slider_value = value;
+    Serial.print('Slider value: ');
+    Serial.println(slider_value);
+  }
+
+  // Disable the slider.
+  digitalWrite(sliderEnablePin, 0);
 }
 
 uint32_t Wheel(byte WheelPos) {
