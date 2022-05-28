@@ -1,14 +1,13 @@
 #include <Arduino.h>
-#include <NimBLEDevice.h>
 #include "Adafruit_seesaw.h"
-#include <seesaw_neopixel.h>
+#include <NimBLEDevice.h>
 
 #define setbit(data,b) (data|=(1<<b)) //set the b bit of data to 1
 #define clrbit(data,b) (data&=~(1<<b)) //set the b bit of data to 0
+
 #define SS_SWITCH        24
 #define SS_NEOPIX        6
-#define SEESAW_ADDR          0x36
-
+#define SEESAW_ADDR      0x36
 
 const uint8_t code1Pin = D3;
 const uint8_t code2Pin = D5;
@@ -17,10 +16,6 @@ const uint8_t code8Pin = D2;
 
 const uint8_t sliderPin = A0;
 const uint8_t sliderEnablePin = D9;
-
-
-// See the following for generating UUIDs:
-// https://www.uuidgenerator.net/
 
 #define SERVICE_UUID        "673b3bf6-ce60-4ee7-bbc1-065fbfb1fd65"
 #define KNOB_CHARACTERISTIC_UUID "8a9a1143-ee50-45ac-b607-3c8354fc7fcf"
@@ -31,16 +26,14 @@ void readKnob();
 void readEncoder();
 void readSlider();
 
-uint32_t Wheel(byte WheelPos);
 uint8_t code8421 = 0;
 Adafruit_seesaw ss;
-seesaw_NeoPixel sspixel = seesaw_NeoPixel(1, SS_NEOPIX, NEO_GRB + NEO_KHZ800);
 int32_t encoder_position;
 int slider_value = 0;
 
-BLECharacteristic* knobCharacteristic = null;
-BLECharacteristic* sliderCharacteristic = null;
-BLECharacteristic* encoderCharacteristic = null;
+BLECharacteristic* knobCharacteristic = NULL;
+BLECharacteristic* sliderCharacteristic = NULL;
+BLECharacteristic* encoderCharacteristic = NULL;
 
 void setup() {
   Serial.begin(115200);
@@ -79,8 +72,10 @@ void setup() {
                                         NIMBLE_PROPERTY::NOTIFY 
                                        );
 
-  sliderCharacteristic->encoderCharacteristic(0);
+  encoderCharacteristic->setValue(0);
+
   pService->start();
+
   // BLEAdvertising *pAdvertising = pServer->getAdvertising();  // this still is working for backward compatibility
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
   pAdvertising->addServiceUUID(SERVICE_UUID);
@@ -91,15 +86,12 @@ void setup() {
   BLEDevice::startAdvertising();
   
   // START OF SS 
-  if (! ss.begin(SEESAW_ADDR) || ! sspixel.begin(SEESAW_ADDR)) {
+  if (! ss.begin(SEESAW_ADDR)) {
     Serial.println("Couldn't find seesaw on default address");
     while(1) delay(10);
   }
   Serial.println("seesaw started");
 
-  // set not so bright!
-  sspixel.setBrightness(20);
-  sspixel.show();
   
   // use a pin for the built in encoder switch
   ss.pinMode(SS_SWITCH, INPUT_PULLUP);
@@ -118,7 +110,7 @@ void loop() {
   readSlider();
   readEncoder();
   // put your main code here, to run repeatedly:
-  delay(2000);
+  delay(20);
 }
 
 void readEncoder() {
@@ -129,11 +121,9 @@ void readEncoder() {
   int32_t new_position = -ss.getEncoderPosition();
   // did we move arounde?
   if (encoder_position != new_position) {
+    Serial.print("Encoder value: ");
     Serial.println(new_position);         // display new position
 
-    // change the neopixel color
-    sspixel.setPixelColor(0, Wheel(new_position & 0xFF));
-    sspixel.show();
     encoder_position = new_position;      // and save for next round
   }
 }
@@ -166,9 +156,9 @@ void readKnob() {
   }
 
   if(new_code8421 != code8421) {
-    Serial.print("Now code8421 is:  ");
-    knobCharacteristic.setValue(code8421);
-    knobCharacteristic.notify(true);
+    Serial.print("knob value: ");
+    knobCharacteristic->setValue(code8421);
+    knobCharacteristic->notify(true);
 
     Serial.println(code8421, HEX);
     code8421 = new_code8421;
@@ -178,32 +168,20 @@ void readKnob() {
 void readSlider() {
   // Enable the slider.
   digitalWrite(sliderEnablePin, 1);
+  delay(20);
   
   // Read slider value;
   int value = analogRead(sliderPin);
 
   if(value != slider_value) {
     // Set and notify.
-    knobCharacteristic.setValue();
-    knobCharacteristic.notify(true);
+    knobCharacteristic->setValue(slider_value);
+    knobCharacteristic->notify(true);
     slider_value = value;
-    Serial.print('Slider value: ');
+    Serial.print("Slider value: ");
     Serial.println(slider_value);
   }
 
   // Disable the slider.
   digitalWrite(sliderEnablePin, 0);
-}
-
-uint32_t Wheel(byte WheelPos) {
-  WheelPos = 255 - WheelPos;
-  if (WheelPos < 85) {
-    return sspixel.Color(255 - WheelPos * 3, 0, WheelPos * 3);
-  }
-  if (WheelPos < 170) {
-    WheelPos -= 85;
-    return sspixel.Color(0, WheelPos * 3, 255 - WheelPos * 3);
-  }
-  WheelPos -= 170;
-  return sspixel.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
 }
