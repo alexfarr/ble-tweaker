@@ -2,8 +2,9 @@ let bleFindBtn = document.getElementById("bleDevice-find");
 let bleResettBtn = document.getElementById("bleDevice-find");
 
 let bleDeviceInfo = document.getElementById("bleDevice-info");
+let modeElement = document.getElementById("mode");
 let page = document.getElementsByClassName('page')[0];
-let element = document.getElementsByClassName("element");
+let element = document.getElementsByClassName("element")[0];
 
 let serviceUUID = '673b3bf6-ce60-4ee7-bbc1-065fbfb1fd65';
 let knobCharUUID = '8a9a1143-ee50-45ac-b607-3c8354fc7fcf';
@@ -14,6 +15,38 @@ let encoderButtonCharUUID = '6a9a1143-ee50-45ac-b607-3c8354fc7fcf';
 var bluetoothDevice;
 let mouseMovePrevVal = 0;
 var characteristics = {};
+
+var Tweaker = {
+  mode: 0,
+  setMode: mode => {
+    Tweaker.mode = mode;
+  },
+  doMode: (action, value) => {
+    Tweaker.modeCallbacks[Tweaker.mode](action, value);
+  },
+  modeCallbacks: {
+    0:(action, value) => {
+      element.style.width = value + "px";
+    },
+    1:(action, value) => {
+      element.style.height = value + "px";
+    },
+    2:(action, value) => {},
+    3:(action, value) => {},
+    4:(action, value) => {},
+    5:(action, value) => {},
+    6:(action, value) => {},
+    7:(action, value) => {},
+    8:(action, value) => {},
+    9:(action, value) => {},
+    10:(action, value) => {},
+    11:(action, value) => {},
+    12:(action, value) => {},
+    13:(action, value) => {},
+    14:(action, value) => {},
+    15:(action, value) => {},
+  }
+};
 
 page.addEventListener('mousemove', e => {
     let value = 0;
@@ -103,15 +136,21 @@ function connectDeviceAndCacheCharacteristics() {
   });
 }
 
-/* This function will be called when `readValue` resolves and
- * characteristic value changes since `characteristicvaluechanged` event
- * listener has been added. */
 function handleCharateristicChanged(event) {
   let characteristic = event.target;
   let charValue = characteristic.value.getInt8();
-  // charateristic.readValue().then(value => {
-  //   charValue = value; 
-  // });
+  if(characteristic.uuid === knobCharUUID){
+    Tweaker.setMode(charValue);
+    modeElement.innerHTML = charValue;
+
+  }
+  if(characteristic.uuid === encoderCharUUID) {
+    Tweaker.doMode('knob', charValue);
+  }
+  if(characteristic.uuid === encoderButtonCharUUID) {
+    Tweaker.doMode('button', charValue);
+  }
+
   console.log('Char value is ' + charValue);
 }
 
