@@ -151,7 +151,11 @@ void readEncoder()
     Serial.print("Encoder value: ");
     Serial.println(new_position); // display new position
 
-    encoderCharacteristic->setValue(new_position);
+    if(new_position > encoder_position) {
+      encoderCharacteristic->setValue(1);
+    } else {
+      encoderCharacteristic->setValue(-1);
+    }
     encoderCharacteristic->notify(true);
 
     encoder_position = new_position; // and save for next round
