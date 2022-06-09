@@ -118,6 +118,7 @@ void setup()
 
 void loop()
 {
+  digitalWrite(sliderEnablePin, 1);
   readKnob();
   readSlider();
   readEncoder();
@@ -153,9 +154,12 @@ void readEncoder()
 
     if(new_position > encoder_position) {
       encoderCharacteristic->setValue(1);
+      Serial.println("up");
     } else {
       encoderCharacteristic->setValue(-1);
+      Serial.println("down");
     }
+    
     encoderCharacteristic->notify(true);
 
     encoder_position = new_position; // and save for next round

@@ -26,14 +26,20 @@ var Tweaker = {
   },
   modeCallbacks: {
     0:(action, value) => {
-      element.style.width = value + "px";
+      bluIncrementAction(value, BoxWidthProperty);
     },
     1:(action, value) => {
-      element.style.height = value + "px";
+      bluIncrementAction(value, BoxHeightProperty);
     },
-    2:(action, value) => {},
-    3:(action, value) => {},
-    4:(action, value) => {},
+    2:(action, value) => {
+      bluIncrementAction(value, BoxColourBlueProperty);
+    },
+    3:(action, value) => {
+      bluIncrementAction(value, BoxColourGreenProperty);
+    },
+    4:(action, value) => {
+      bluIncrementAction(value, BoxColourRedProperty);
+    },
     5:(action, value) => {},
     6:(action, value) => {},
     7:(action, value) => {},
@@ -48,7 +54,7 @@ var Tweaker = {
   }
 };
 
-page.addEventListener('mousemove', e => {
+/*page.addEventListener('mousemove', e => {
     let value = 0;
     if (e.offsetY > mouseMovePrevVal) {
         value = 1;
@@ -58,6 +64,7 @@ page.addEventListener('mousemove', e => {
     bluIncrementAction(value, thing);
     mouseMovePrevVal = e.offsetY;
 });
+*/
 
 /**
  *
@@ -66,21 +73,109 @@ page.addEventListener('mousemove', e => {
  */
 let bluIncrementAction = (direction, thingObject) => {
     if (direction == 1) {
-        thingObject.value = thingObject.value + thingObject.step;
+        thingObject.value = parseInt(thingObject.value) + parseInt(thingObject.step);
     } else if (direction == -1 && thingObject.value > 0) {
-        thingObject.value = thingObject.value - thingObject.step;
+        thingObject.value = parseInt(thingObject.value) - parseInt(thingObject.step);
     }
     thingObject.callback(thingObject);
 };
 
-let thing = {
-    value: 0,
-    step: 10,
-    selector: "element",
-    callback: (thingObject) => {
-        document.getElementsByClassName(thingObject.selector)[0].style.height = thingObject.value + "px";
-    },
+let BoxWidthProperty = {
+  value: 0,
+  step: 10,
+  selector: "element",
+  element: document.getElementsByClassName(this.selector)[0],
+  value: parseInt(element.style.width & 0),
+  callback: (thingObject) => {
+      element.style.width = thingObject.value + "px";
+  },
 };
+
+let BoxHeightProperty = {
+  step: 10,
+  selector: "element",
+  element: document.getElementsByClassName(this.selector)[0],
+  value: parseInt(element.style.height & 0),
+  callback: (thingObject) => {
+      element.style.height = thingObject.value + "px";
+  },
+};
+
+let BoxColourRedProperty = {
+  selector: "element",
+  element: document.getElementsByClassName(this.selector)[0],
+  value: parseInt((element.style.backgroundColor.slice(1,3) & 0), 16),
+  step: 10,
+  callback: (thingObject) => {
+    if(thingObject.value > 256){
+      thingObject.value = 255;
+    } else if(thingObject.value < 0) {
+      thingObject.value = 0;
+    }
+    console.log(thingObject.value);
+
+    //let red = element.style.backgroundColor.slice(1,3);
+    let green = element.style.backgroundColor.slice(3,5) & 0;
+    let blue = element.style.backgroundColor.slice(5,7) & 0;
+
+    let red = thingObject.value;
+
+    let colour = "#" + zeroPad(red.toString(16), 2) + zeroPad(green, 2) + zeroPad(blue, 2);
+    element.style.backgroundColor = colour;
+  },
+};
+
+let BoxColourGreenProperty = {
+  selector: "element",
+  element: document.getElementsByClassName(this.selector)[0],
+  value: parseInt((element.style.backgroundColor.slice(3,5) & 0), 16),
+  step: 10,
+  callback: (thingObject) => {
+    if(thingObject.value > 256){
+      thingObject.value = 255;
+    } else if(thingObject.value < 0) {
+      thingObject.value = 0;
+    }
+    console.log(thingObject.value);
+
+    let red = element.style.backgroundColor.slice(1,3) & 0;
+    //let green = element.style.backgroundColor.slice(3,5) & 0;
+    let blue = element.style.backgroundColor.slice(5,7) & 0;
+
+    let green = thingObject.value;
+
+    let colour = "#" + zeroPad(red, 2) + zeroPad(green.toString(16), 2) + zeroPad(blue, 2);
+    element.style.backgroundColor = colour;
+  },
+};
+
+
+let BoxColourBlueProperty = {
+  selector: "element",
+  element: document.getElementsByClassName(this.selector)[0],
+  value: parseInt((element.style.backgroundColor.slice(5,7) & 0), 16),
+  step: 10,
+  callback: (thingObject) => {
+    if(thingObject.value > 256){
+      thingObject.value = 255;
+    } else if(thingObject.value < 0) {
+      thingObject.value = 0;
+    }
+    console.log(thingObject.value);
+
+    let red = element.style.backgroundColor.slice(1,3) & 0;
+    let green = element.style.backgroundColor.slice(3,5) & 0;
+    //let blue = element.style.backgroundColor.slice(5,7) & 0;
+
+    let blue = thingObject.value;
+
+    let colour = "#" + zeroPad(red, 2) + zeroPad(green, 2) + zeroPad(blue.toString(16), 2);
+    element.style.backgroundColor = colour;
+  },
+};
+
+const zeroPad = (num, places) => String(num).padStart(places, '0')
+
 
 
 bleFindBtn.addEventListener("click", onBleBtnClick);
