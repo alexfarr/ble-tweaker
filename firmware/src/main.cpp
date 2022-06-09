@@ -14,7 +14,7 @@ const uint8_t code2Pin = D5;
 const uint8_t code4Pin = D4;
 const uint8_t code8Pin = D2;
 
-const uint8_t sliderPin = A0;
+const uint8_t sliderPin = A1;
 const uint8_t sliderEnablePin = D9;
 
 #define SERVICE_UUID "673b3bf6-ce60-4ee7-bbc1-065fbfb1fd65"
@@ -220,8 +220,8 @@ void readKnob()
 void readSlider()
 {
   // Enable the slider.
-  digitalWrite(sliderEnablePin, 1);
-  delay(20);
+  //digitalWrite(sliderEnablePin, 1);
+  //delay(20);
 
   // Read slider value;
   int value = analogRead(sliderPin);
@@ -237,5 +237,5 @@ void readSlider()
   }
 
   // Disable the slider.
-  digitalWrite(sliderEnablePin, 0);
+  //digitalWrite(sliderEnablePin, 0);
 }

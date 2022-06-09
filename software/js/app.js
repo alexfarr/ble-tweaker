@@ -1,3 +1,4 @@
+
 let bleFindBtn = document.getElementById("bleDevice-find");
 let bleResettBtn = document.getElementById("bleDevice-find");
 
@@ -16,188 +17,304 @@ var bluetoothDevice;
 let mouseMovePrevVal = 0;
 var characteristics = {};
 
+let BoxWidthProperty = {};
+let BoxHeightProperty = {};
+let BoxColourBlueProperty = {};
+let BoxColourGreenProperty = {};
+let BoxColourRedProperty = {};
+let BoxXProperty = {};
+let BoxYProperty = {};
+
 var Tweaker = {
   mode: 0,
   setMode: mode => {
     Tweaker.mode = mode;
+    switch (mode) {
+      case 0:
+        modeElement.innerHTML = "Box Width";
+        break;
+      case 1:
+        modeElement.innerHTML = "Box Height";
+        break;
+      case 2:
+        modeElement.innerHTML = "Box Blue";
+        break;
+      case 3:
+        modeElement.innerHTML = "Box Green";
+        break;
+      case 4:
+        modeElement.innerHTML = "Box Red";
+        break;
+      case 14:
+        modeElement.innerHTML = "Box Y";
+        break;
+      case 15:
+        modeElement.innerHTML = "Box X";
+        break;
+    }
   },
   doMode: (action, value) => {
-    Tweaker.modeCallbacks[Tweaker.mode](action, value);
+    switch (action) {
+      case "encoder":
+        Tweaker.encoderCallbacks[Tweaker.mode](value);
+        break;
+      case "encoderButton":
+        alert("Button pressed!");
+        Tweaker.encoderButtonCallbacks[Tweaker.mode]();
+        break;
+      case "slider":
+        console.log(value);
+        Tweaker.sliderCallbacks[Tweaker.mode](value);
+        break;
+    }
   },
-  modeCallbacks: {
-    0:(action, value) => {
-      bluIncrementAction(value, BoxWidthProperty);
+  encoderCallbacks: {
+    0: (value) => {
+      bleIncrementAction(value, BoxWidthProperty);
     },
-    1:(action, value) => {
-      bluIncrementAction(value, BoxHeightProperty);
+    1: (value) => {
+      bleIncrementAction(value, BoxHeightProperty);
     },
-    2:(action, value) => {
-      bluIncrementAction(value, BoxColourBlueProperty);
+    2: (value) => {
+      bleIncrementAction(value, BoxColourBlueProperty);
     },
-    3:(action, value) => {
-      bluIncrementAction(value, BoxColourGreenProperty);
+    3: (value) => {
+      bleIncrementAction(value, BoxColourGreenProperty);
     },
-    4:(action, value) => {
-      bluIncrementAction(value, BoxColourRedProperty);
+    4: (value) => {
+      bleIncrementAction(value, BoxColourRedProperty);
     },
-    5:(action, value) => {},
-    6:(action, value) => {},
-    7:(action, value) => {},
-    8:(action, value) => {},
-    9:(action, value) => {},
-    10:(action, value) => {},
-    11:(action, value) => {},
-    12:(action, value) => {},
-    13:(action, value) => {},
-    14:(action, value) => {},
-    15:(action, value) => {},
-  }
+    5: (value) => { },
+    6: (value) => { },
+    7: (value) => { },
+    8: (value) => { },
+    9: (value) => { },
+    10: (value) => { },
+    11: (value) => { },
+    12: (value) => { },
+    13: (value) => { },
+    14: (value) => {
+      bleIncrementAction(value, BoxYProperty);
+    },
+    15: (value) => {
+      bleIncrementAction(value, BoxXProperty);
+    },
+  },
+  encoderButtonCallbacks: {
+    0: (value) => {
+    },
+    1: (value) => {
+    },
+    2: (value) => {
+    },
+    3: (value) => {
+    },
+    4: (value) => {
+    },
+    5: (value) => { },
+    6: (value) => { },
+    7: (value) => { },
+    8: (value) => { },
+    9: (value) => { },
+    10: (value) => { },
+    11: (value) => { },
+    12: (value) => { },
+    13: (value) => { },
+    14: (value) => {
+    },
+    15: (value) => {
+    },
+  },
+  sliderCallbacks: {
+    0: (value) => {
+    },
+    1: (value) => {
+    },
+    2: (value) => {
+    },
+    3: (value) => {
+    },
+    4: (value) => {
+    },
+    5: (value) => { },
+    6: (value) => { },
+    7: (value) => { },
+    8: (value) => { },
+    9: (value) => { },
+    10: (value) => { },
+    11: (value) => { },
+    12: (value) => { },
+    13: (value) => { },
+    14: (value) => {
+    },
+    15: (value) => {
+    },
+  },
 };
 
-/*page.addEventListener('mousemove', e => {
-    let value = 0;
-    if (e.offsetY > mouseMovePrevVal) {
-        value = 1;
-    } else {
-        value = -1;
-    }
-    bluIncrementAction(value, thing);
-    mouseMovePrevVal = e.offsetY;
+document.addEventListener('DOMContentLoaded', (event) => {
+
+  BoxXProperty = {
+    value: 0,
+    step: 10,
+    element: document.getElementsByClassName("element")[0],
+    value: window.getComputedStyle(element).left,
+    callback: function () {
+      this.element.style.left = this.value + "px";
+    },
+  };
+
+  BoxYProperty = {
+    value: 0,
+    step: 10,
+    element: document.getElementsByClassName("element")[0],
+    value: window.getComputedStyle(element).top,
+    callback: function () {
+      this.element.style.top = this.value + "px";
+    },
+  };
+
+  BoxWidthProperty = {
+    value: 0,
+    step: 10,
+    element: document.getElementsByClassName("element")[0],
+    value: element.clientWidth,
+    callback: function () {
+      this.element.style.width = this.value + "px";
+    },
+  };
+
+  BoxHeightProperty = {
+    step: 10,
+    element: document.getElementsByClassName("element")[0],
+    value: element.clientHeight,
+    callback: function () {
+      this.element.style.height = this.value + "px";
+    },
+  };
+
+  BoxColourRedProperty = {
+    element: document.getElementsByClassName("element")[0],
+    value: parseInt((element.style.backgroundColor.slice(1, 3) & 0), 16),
+    step: 10,
+    callback: function () {
+      if (this.value > 256) {
+        this.value = 255;
+      } else if (this.value < 0) {
+        this.value = 0;
+      }
+      console.log(this.value);
+
+      if (!this.element.style.backgroundColor) {
+        this.element.style.backgroundColor = "#000000";
+      }
+
+      let hexValue = rgb2hex(this.element.style.backgroundColor);
+      let green = hexValue.slice(3, 5);
+      let blue = hexValue.slice(5, 7);
+
+      let red = this.value;
+
+      let colour = "#" + zeroPad(red.toString(16), 2) + zeroPad(green, 2) + zeroPad(blue, 2);
+      this.element.style.backgroundColor = colour;
+    },
+  };
+
+  BoxColourGreenProperty = {
+    element: document.getElementsByClassName("element")[0],
+    value: parseInt((element.style.backgroundColor.slice(3, 5) & 0), 16),
+    step: 10,
+    callback: function () {
+      if (this.value > 256) {
+        this.value = 255;
+      } else if (this.value < 0) {
+        this.value = 0;
+      }
+      console.log(this.value);
+
+      if (!this.element.style.backgroundColor) {
+        this.element.style.backgroundColor = "#000000";
+      }
+
+      let hexValue = rgb2hex(this.element.style.backgroundColor);
+
+      let red = hexValue.slice(1, 3);
+      let blue = hexValue.slice(5, 7);
+
+      let green = this.value;
+
+      let colour = "#" + zeroPad(red, 2) + zeroPad(green.toString(16), 2) + zeroPad(blue, 2);
+      this.element.style.backgroundColor = colour;
+    },
+  };
+
+
+  BoxColourBlueProperty = {
+    element: document.getElementsByClassName("element")[0],
+    value: parseInt((element.style.backgroundColor.slice(5, 7) & 0), 16),
+    step: 10,
+    callback: function () {
+      if (this.value > 256) {
+        this.value = 255;
+      } else if (this.value < 0) {
+        this.value = 0;
+      }
+      console.log(this.value);
+
+      if (!this.element.style.backgroundColor) {
+        this.element.style.backgroundColor = "#000000";
+      }
+
+      let hexValue = rgb2hex(this.element.style.backgroundColor);
+
+      let red = hexValue.slice(1, 3);
+      let green = hexValue.slice(3, 5);
+
+      let blue = this.value;
+
+      let colour = "#" + zeroPad(red, 2) + zeroPad(green, 2) + zeroPad(blue.toString(16), 2);
+      this.element.style.backgroundColor = colour;
+    },
+  };
+
+  bleFindBtn.addEventListener("click", onBleBtnClick);
+  //bleResettBtn.addEventListener("click", onResetButtonClick);
 });
-*/
+
+const zeroPad = (num, places) => String(num).padStart(places, '0');
+const rgb2hex = (rgb) => `#${rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/).slice(1).map(n => parseInt(n, 10).toString(16).padStart(2, '0')).join('')}`
 
 /**
- *
- * @param {string} direction
- * @param {object} thingObject
- */
-let bluIncrementAction = (direction, thingObject) => {
-    if (direction == 1) {
-        thingObject.value = parseInt(thingObject.value) + parseInt(thingObject.step);
-    } else if (direction == -1 && thingObject.value > 0) {
-        thingObject.value = parseInt(thingObject.value) - parseInt(thingObject.step);
-    }
-    thingObject.callback(thingObject);
+   *
+   * @param {string} direction
+   * @param {object} thingObject
+   */
+let bleIncrementAction = (direction, thingObject) => {
+  if (direction == 1) {
+    thingObject.value = parseInt(thingObject.value) + parseInt(thingObject.step);
+  } else if (direction == -1 && thingObject.value > 0) {
+    thingObject.value = parseInt(thingObject.value) - parseInt(thingObject.step);
+  }
+  thingObject.callback();
 };
-
-let BoxWidthProperty = {
-  value: 0,
-  step: 10,
-  selector: "element",
-  element: document.getElementsByClassName(this.selector)[0],
-  value: parseInt(element.style.width & 0),
-  callback: (thingObject) => {
-      element.style.width = thingObject.value + "px";
-  },
-};
-
-let BoxHeightProperty = {
-  step: 10,
-  selector: "element",
-  element: document.getElementsByClassName(this.selector)[0],
-  value: parseInt(element.style.height & 0),
-  callback: (thingObject) => {
-      element.style.height = thingObject.value + "px";
-  },
-};
-
-let BoxColourRedProperty = {
-  selector: "element",
-  element: document.getElementsByClassName(this.selector)[0],
-  value: parseInt((element.style.backgroundColor.slice(1,3) & 0), 16),
-  step: 10,
-  callback: (thingObject) => {
-    if(thingObject.value > 256){
-      thingObject.value = 255;
-    } else if(thingObject.value < 0) {
-      thingObject.value = 0;
-    }
-    console.log(thingObject.value);
-
-    //let red = element.style.backgroundColor.slice(1,3);
-    let green = element.style.backgroundColor.slice(3,5) & 0;
-    let blue = element.style.backgroundColor.slice(5,7) & 0;
-
-    let red = thingObject.value;
-
-    let colour = "#" + zeroPad(red.toString(16), 2) + zeroPad(green, 2) + zeroPad(blue, 2);
-    element.style.backgroundColor = colour;
-  },
-};
-
-let BoxColourGreenProperty = {
-  selector: "element",
-  element: document.getElementsByClassName(this.selector)[0],
-  value: parseInt((element.style.backgroundColor.slice(3,5) & 0), 16),
-  step: 10,
-  callback: (thingObject) => {
-    if(thingObject.value > 256){
-      thingObject.value = 255;
-    } else if(thingObject.value < 0) {
-      thingObject.value = 0;
-    }
-    console.log(thingObject.value);
-
-    let red = element.style.backgroundColor.slice(1,3) & 0;
-    //let green = element.style.backgroundColor.slice(3,5) & 0;
-    let blue = element.style.backgroundColor.slice(5,7) & 0;
-
-    let green = thingObject.value;
-
-    let colour = "#" + zeroPad(red, 2) + zeroPad(green.toString(16), 2) + zeroPad(blue, 2);
-    element.style.backgroundColor = colour;
-  },
-};
-
-
-let BoxColourBlueProperty = {
-  selector: "element",
-  element: document.getElementsByClassName(this.selector)[0],
-  value: parseInt((element.style.backgroundColor.slice(5,7) & 0), 16),
-  step: 10,
-  callback: (thingObject) => {
-    if(thingObject.value > 256){
-      thingObject.value = 255;
-    } else if(thingObject.value < 0) {
-      thingObject.value = 0;
-    }
-    console.log(thingObject.value);
-
-    let red = element.style.backgroundColor.slice(1,3) & 0;
-    let green = element.style.backgroundColor.slice(3,5) & 0;
-    //let blue = element.style.backgroundColor.slice(5,7) & 0;
-
-    let blue = thingObject.value;
-
-    let colour = "#" + zeroPad(red, 2) + zeroPad(green, 2) + zeroPad(blue.toString(16), 2);
-    element.style.backgroundColor = colour;
-  },
-};
-
-const zeroPad = (num, places) => String(num).padStart(places, '0')
-
-
-
-bleFindBtn.addEventListener("click", onBleBtnClick);
-//bleResettBtn.addEventListener("click", onResetButtonClick);
 
 function onBleBtnClick() {
   return (bluetoothDevice ? Promise.resolve() : requestDevice())
-  .then(connectDeviceAndCacheCharacteristics)
-  .catch(error => {
-    console.log('Argh! ' + error);
-  });
+    .then(connectDeviceAndCacheCharacteristics)
+    .catch(error => {
+      console.log('Argh! ' + error);
+    });
 }
 
 function requestDevice() {
-    console.log('Requesting bleTweaker Bluetooth Device...');
+  console.log('Requesting bleTweaker Bluetooth Device...');
   return navigator.bluetooth.requestDevice({
-      filters: [{'services' : [serviceUUID]}]
+    filters: [{ 'services': [serviceUUID] }]
   })
-  .then(device => {
-    bluetoothDevice = device;
-    bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
-  });
+    .then(device => {
+      bluetoothDevice = device;
+      bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+    });
 }
 
 function connectDeviceAndCacheCharacteristics() {
@@ -207,72 +324,84 @@ function connectDeviceAndCacheCharacteristics() {
 
   console.log('Connecting to GATT Server...');
   return bluetoothDevice.gatt.connect()
-  .then(server => {
-    console.log('Getting Service...');
-    return server.getPrimaryService(serviceUUID);
-  })
-  .then(service => {
-    console.log('Getting Characteristic...');
-    return service.getCharacteristics();
-  })
-  .then(characteristicsRecieved => {
-    characteristics = characteristicsRecieved;
-    characteristics.forEach(characteristic => {
+    .then(server => {
+      console.log('Getting Service...');
+      return server.getPrimaryService(serviceUUID);
+    })
+    .then(service => {
+      console.log('Getting Characteristic...');
+      return service.getCharacteristics();
+    })
+    .then(characteristicsRecieved => {
+      characteristics = characteristicsRecieved;
+      characteristics.forEach(characteristic => {
         //@TODO need to map to known characteristics
         characteristic.startNotifications().then(_ => {
           console.log("starting notifications for: " + _.uuid);
           characteristic.addEventListener('characteristicvaluechanged',
-          handleCharateristicChanged);
-        });
-    });
+            handleCharateristicChanged);
+          
+            if (characteristic.uuid === knobCharUUID) {
+              characteristic.readValue().then(value => {
+                Tweaker.setMode(value.getInt8());
+              });
+            }
 
-    document.querySelector('#bleDevice-notify').disabled = false;
-    document.querySelector('#bleDevice-stopNotify').disabled = true;
-  });
+            if (characteristic.uuid === sliderCharUUID) {
+              characteristic.readValue().then(value => {
+                Tweaker.doMode("slider", value.getInt8());
+              });
+            }
+        });
+      });
+
+      document.querySelector('#bleDevice-notify').disabled = false;
+      document.querySelector('#bleDevice-stopNotify').disabled = true;
+    });
 }
 
 function handleCharateristicChanged(event) {
   let characteristic = event.target;
   let charValue = characteristic.value.getInt8();
-  if(characteristic.uuid === knobCharUUID){
+  if (characteristic.uuid === knobCharUUID) {
     Tweaker.setMode(charValue);
-    modeElement.innerHTML = charValue;
-
   }
-  if(characteristic.uuid === encoderCharUUID) {
-    Tweaker.doMode('knob', charValue);
+  if (characteristic.uuid === encoderCharUUID) {
+    Tweaker.doMode("encoder", charValue);
   }
-  if(characteristic.uuid === encoderButtonCharUUID) {
-    Tweaker.doMode('button', charValue);
+  if (characteristic.uuid === encoderButtonCharUUID) {
+    Tweaker.doMode("encoderButton", charValue);
   }
-
-  console.log('Char value is ' + charValue);
+  if (characteristic.uuid === sliderCharUUID) {
+    charValue = characteristic.value.getUint8();
+    Tweaker.doMode("slider", charValue);
+  }
 }
 
 function onStartNotificationsButtonClick() {
-    console.log('Starting Notifications...');
+  console.log('Starting Notifications...');
   characteristicOne.startNotifications()
-  .then(_ => {
-    console.log('> Notifications started');
-    document.querySelector('#startNotifications').disabled = true;
-    document.querySelector('#stopNotifications').disabled = false;
-  })
-  .catch(error => {
-    console.log('Argh! ' + error);
-  });
+    .then(_ => {
+      console.log('> Notifications started');
+      document.querySelector('#startNotifications').disabled = true;
+      document.querySelector('#stopNotifications').disabled = false;
+    })
+    .catch(error => {
+      console.log('Argh! ' + error);
+    });
 }
 
 function onStopNotificationsButtonClick() {
-    console.log('Stopping Notifications...');
+  console.log('Stopping Notifications...');
   characteristicOne.stopNotifications()
-  .then(_ => {
-    console.log('> Notifications stopped');
-    document.querySelector('#startNotifications').disabled = false;
-    document.querySelector('#stopNotifications').disabled = true;
-  })
-  .catch(error => {
-    console.log('Argh! ' + error);
-  });
+    .then(_ => {
+      console.log('> Notifications stopped');
+      document.querySelector('#startNotifications').disabled = false;
+      document.querySelector('#stopNotifications').disabled = true;
+    })
+    .catch(error => {
+      console.log('Argh! ' + error);
+    });
 }
 /*
 function onResetButtonClick() {
@@ -287,9 +416,9 @@ function onResetButtonClick() {
 }*/
 
 function onDisconnected() {
-    console.log('> Bluetooth Device disconnected');
+  console.log('> Bluetooth Device disconnected');
   connectDeviceAndCacheCharacteristics()
-  .catch(error => {
-    console.log('Argh! ' + error);
-  });
+    .catch(error => {
+      console.log('Argh! ' + error);
+    });
 }
